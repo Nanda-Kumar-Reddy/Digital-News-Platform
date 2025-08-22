@@ -1,0 +1,98 @@
+Database Design Decisions:
+
+Database Used:
+
+SQLite was chosen for simplicity, portability, and ease of integration during development. It is sufficient for a small-scale news application and requires no additional server setup.
+
+For production, this can be migrated to PostgreSQL or MySQL without significant schema changes.
+
+Key Design Principles:
+
+Normalization:
+
+Followed 3NF (Third Normal Form) to avoid redundancy and ensure efficient storage.
+
+Example: Notification settings are stored in a separate table (notification_settings) instead of embedding them in the users table.
+
+Referential Integrity:
+
+Used foreign keys with ON DELETE CASCADE to maintain data consistency.
+
+Example: If a user is deleted, related notification settings and bookmarks are also deleted automatically.
+
+Scalability:
+
+Separate tables for articles, users, bookmarks, notifications to allow horizontal scaling in the future.
+
+Default Values:
+
+For Boolean-like fields, used INTEGER (0 or 1) instead of BOOLEAN for SQLite compatibility.
+
+Example: In notification_settings, breaking, daily, and personalized default to 1.
+
+Indexes:
+
+Primary keys on id for all main tables.
+
+Foreign keys on reference columns (user_id, article_id) for faster joins.
+
+Table Breakdown
+1. Users Table
+
+Stores user authentication and profile information.
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+2. Articles Table
+
+Stores news articles with metadata.
+
+CREATE TABLE IF NOT EXISTS articles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  category TEXT,
+  published_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+3. Bookmarks Table
+
+Handles user bookmarks for articles.
+
+CREATE TABLE IF NOT EXISTS bookmarks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  article_id INTEGER,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
+);
+
+4. Notification Settings Table
+
+Stores user-specific notification preferences.
+
+CREATE TABLE IF NOT EXISTS notification_settings (
+  user_id INTEGER PRIMARY KEY,
+  breaking INTEGER DEFAULT 1,
+  daily INTEGER DEFAULT 1,
+  personalized INTEGER DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+5. Device Registration Table
+
+Stores device tokens for push notifications.
+
+CREATE TABLE IF NOT EXISTS devices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  device_token TEXT NOT NULL,
+  platform TEXT CHECK(platform IN ('android', 'ios', 'web')),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
