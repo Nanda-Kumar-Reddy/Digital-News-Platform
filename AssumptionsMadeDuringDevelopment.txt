@@ -1,0 +1,61 @@
+Assumptions Made During Development:
+
+User Authentication:
+
+Email and password-based authentication is sufficient for the current implementation.
+
+Passwords will be stored in a hashed format using a secure algorithm (e.g., bcrypt) before saving in the database.
+
+Notification Settings:
+
+All users start with default notification preferences:
+
+Breaking News: Enabled
+
+Daily Digest: Enabled
+
+Personalized Alerts: Enabled
+
+Users can update these preferences anytime.
+
+Push Notifications:
+
+Device tokens provided by users are valid and correctly linked to their account.
+
+For web, browser push notifications will be used; for mobile, FCM/APNs integration is assumed in the future.
+
+Article Management:
+
+Articles are inserted by an admin or trusted source (no user-generated content).
+
+Each article belongs to one category (e.g., politics, sports, tech).
+
+Data Integrity:
+
+Each user can bookmark the same article only once (unique constraint handled in code or database).
+
+Deleting a user will automatically remove all related bookmarks and notification settings.
+
+Scalability:
+
+SQLite is used for development purposes. For production, migration to PostgreSQL or MySQL is assumed.
+
+Current design assumes a moderate amount of traffic suitable for a single database instance.
+
+Security:
+
+JWT tokens are assumed to be securely stored in the client (e.g., HTTP-only cookies or secure storage).
+
+No additional OAuth (Google, Facebook) login is included in this phase.
+
+Time Zone & Localization:
+
+All timestamps are stored in UTC format in the database.
+
+No multi-language support in the current version; English is the default language.
+
+Device Registration:
+
+One user can have multiple devices registered for notifications.
+
+Device tokens remain valid unless explicitly removed by the user.
